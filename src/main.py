@@ -2,6 +2,8 @@
 Este módulo se encarga de iniciar el servidor API, cargar la base de datos y agregar los puntos finales
 """
 import os
+from werkzeug.security import check_password_hash as checkph
+from werkzeug.security import generate_password_hash as genph
 from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
@@ -41,6 +43,36 @@ def handle_hello():
         return jsonify(data), 200
     else:
         return jsonify(response_body)
+
+@app.route('/users', methods=['POST'])
+def add_user():
+    body = request.get_json()
+    print(body)
+
+    if body == None:
+        return jsonify({'¡Error! Invalid data'}), 400
+    elif 'username' not in body:
+        return jsonify({'message': 'you must add a username'}), 400
+    elif 'name' not in body:
+        return jsonify({'message': 'you must add a name'}), 400
+    elif 'email' not in body:
+        return jsonify({'message': 'you must add a email'}), 400
+    elif 'password' not in body:
+        return jsonify({'message': 'you must add a password'}), 400
+    else:
+        hash_pass = genph(body['password'])
+        user = Users(username=body['username'], name=body['name'], email=body['email'], password=hash_pass)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': 'add user'}), 200
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    user = Users.query.filter_by(username=username, password=password).first()
+    print(user)
+    return jsonify({'user': 'success'}), 200
 
 @app.route('/user/get/<int:id>', methods=['GET'])
 def people_for_id(id):

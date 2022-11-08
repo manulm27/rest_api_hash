@@ -9,7 +9,7 @@ class Users(db.Model):
     username = db.Column(db.String(60), unique=True, nullable=False)
     name = db.Column(db.String(60), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
+    password = db.Column(db.String(150), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=True)
 
 #Devuelve una cadena como reprrsentacion de objeto
