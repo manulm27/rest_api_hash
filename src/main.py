@@ -68,11 +68,23 @@ def add_user():
 
 @app.route('/login', methods=['POST'])
 def login():
+    if len(request.get_json()) == 0:
+        return jsonify({"message": "Enter you data"}), 401
     username = request.json.get('username')
+    if username == None:
+        return jsonify({"message": "Enter your user"}), 401
     password = request.json.get('password')
-    user = Users.query.filter_by(username=username, password=password).first()
-    print(user)
-    return jsonify({'user': 'success'}), 200
+    if password == None:
+        return jsonify({"message": "Enter your password"}), 401
+    user = Users.query.filter_by(username=username).first()
+    if user == None:
+        return jsonify({"message": "The username or password are incorrect"}), 401
+    else:
+        security = checkph(user.password, password)
+        if security == False:
+             return jsonify({"message": "The username or password are incorrect"}), 401
+        else:
+            return jsonify({'message': 'Success '+username}), 200
 
 @app.route('/user/get/<int:id>', methods=['GET'])
 def people_for_id(id):
